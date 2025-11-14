@@ -97,7 +97,7 @@ class SchedulingSchema(BaseModel):
     """Schema para validação de agendamento."""
     lead_id: str
     data_reuniao: datetime = Field(..., description="Data e hora da reunião")
-    horario_preferencial: Optional[str] = Field(None, regex=r"^\d{2}:\d{2}$", description="Formato HH:MM")
+    horario_preferencial: Optional[str] = Field(None, pattern=r"^\d{2}:\d{2}$", description="Formato HH:MM")
     vendedor_atribuido: Optional[str] = Field(None, max_length=255)
     vendedor_email: Optional[EmailStr] = None
     notas: Optional[str] = Field(None, max_length=500)
