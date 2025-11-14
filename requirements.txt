@@ -23,6 +23,7 @@ python-json-logger==2.0.7
 # Data Validation
 pydantic==2.5.0
 pydantic-settings==2.1.0
+email-validator==2.1.0.post1
 
 # HTTP Requests
 requests==2.31.0
