@@ -49,7 +49,7 @@ mypy==1.7.1
 
 # Security
 cryptography==41.0.7
-PyJWT==2.8.1
+PyJWT==2.10.1
 
 # Production Server
 gunicorn==21.2.0
