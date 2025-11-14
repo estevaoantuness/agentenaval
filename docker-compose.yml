@@ -1,0 +1,96 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: agentenaval-db
+    environment:
+      POSTGRES_DB: agentenaval
+      POSTGRES_USER: agentenaval
+      POSTGRES_PASSWORD: agentenaval_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentenaval"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agentenaval-network
+
+  # Flask Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentenaval-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://agentenaval:agentenaval_dev_password@postgres:5432/agentenaval
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-sk-placeholder}
+      OPENAI_MODEL: gpt-4o-mini
+      OPENAI_MAX_TOKENS: 500
+      OPENAI_TEMPERATURE: 0.7
+      OPENAI_COST_LIMIT_MONTHLY: 20
+
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL:-http://evolution-api:3333}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-placeholder}
+      EVOLUTION_INSTANCE_ID: ${EVOLUTION_INSTANCE_ID:-placeholder}
+
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-dev-webhook-secret-min-32-chars}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+
+      PROMPT_VERSION: v1.0
+
+      RATE_LIMIT_PER_PHONE: 30
+      RATE_LIMIT_GLOBAL: 100
+
+      ELIGIBLE_REGIONS: RS,SC,PR,SP,RJ,MG,ES,GO,MT,MS,DF
+      INTEREST_REGIONS: BA,PE,CE,RN,PB,AL,SE,PI,MA,AP,AM,RR,AC,TO
+
+      ALERT_EMAIL: ${ALERT_EMAIL:-dev@example.com}
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: ${SMTP_USER:-placeholder}
+      SMTP_PASS: ${SMTP_PASS:-placeholder}
+      SMTP_FROM: noreply@example.com
+
+      ENVIRONMENT: development
+      LOG_LEVEL: INFO
+
+      SCHEDULER_ENABLED: false
+      SCHEDULER_INTERVAL_MINUTES: 30
+
+      CORS_ORIGINS: "*"
+      ALERT_COST_THRESHOLD_WARNING: 0.5
+      ALERT_COST_THRESHOLD_CRITICAL: 0.8
+
+      FEATURE_SCHEDULING: "true"
+      FEATURE_NOTIFICATIONS: "false"
+      FEATURE_ANALYTICS: "false"
+
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    networks:
+      - agentenaval-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  agentenaval-network:
+    driver: bridge
