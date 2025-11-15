@@ -44,12 +44,12 @@ class Settings(BaseSettings):
     interest_regions: str = "BA,PE,CE,RN,PB,AL,SE,PI,MA,AP,AM,RR,AC,TO"
 
     # ========== Email/Notificações ==========
-    alert_email: str
+    alert_email: str = "noreply@example.com"  # Default - não obrigatório
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
-    smtp_user: str
-    smtp_pass: str
-    smtp_from: str
+    smtp_user: str = "noreply@example.com"  # Default - não obrigatório
+    smtp_pass: str = "noreply"  # Default - não obrigatório
+    smtp_from: str = "noreply@example.com"  # Default - não obrigatório
 
     # ========== Logging ==========
     environment: str = "development"
