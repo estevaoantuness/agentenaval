@@ -3,7 +3,7 @@ Configuração centralizada da aplicação.
 Carrega e valida variáveis de ambiente.
 """
 import os
-from typing import List
+from typing import List, Optional
 from functools import lru_cache
 from pydantic_settings import BaseSettings
 from pydantic import field_validator, HttpUrl
@@ -47,9 +47,9 @@ class Settings(BaseSettings):
     alert_email: str = "noreply@example.com"  # Default - não obrigatório
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
-    smtp_user: str = "noreply@example.com"  # Default - não obrigatório
-    smtp_pass: str = "noreply"  # Default - não obrigatório
-    smtp_from: str = "noreply@example.com"  # Default - não obrigatório
+    smtp_user: Optional[str] = None
+    smtp_pass: Optional[str] = None
+    smtp_from: Optional[str] = None
 
     # ========== Logging ==========
     environment: str = "development"
@@ -133,6 +133,13 @@ def validate_settings() -> Settings:
             'webhook_secret',
             'secret_key',
         ]
+
+        if settings.feature_notifications:
+            required_fields.extend([
+                'smtp_user',
+                'smtp_pass',
+                'smtp_from',
+            ])
 
         for field in required_fields:
             value = getattr(settings, field, None)
